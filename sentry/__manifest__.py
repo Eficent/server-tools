@@ -20,5 +20,6 @@
     },
     'depends': [
         'base',
+        'queue_job',
     ],
 }

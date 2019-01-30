@@ -5,6 +5,7 @@ import logging
 import urllib.parse
 
 import odoo.http
+from odoo.addons.queue_job.job import job
 
 _logger = logging.getLogger(__name__)
 try:
@@ -87,6 +88,7 @@ class OdooSentryHandler(SentryHandler):
         super(OdooSentryHandler, self).__init__(*args, **kwargs)
         self.include_extra_context = include_extra_context
 
+    @job(default_channel='root.sentry')
     def emit(self, record):
         if self.include_extra_context:
             self.client.context.merge(get_extra_context())
