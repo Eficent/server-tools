@@ -23,7 +23,11 @@ class CleanupPurgeLineData(models.TransientModel):
                 .browse(self._context.get('active_ids'))
         to_unlink = objs.filtered(lambda x: not x.purged and x.data_id)
         self.logger.info('Purging data entries: %s', to_unlink.mapped('name'))
-        to_unlink.mapped('data_id').unlink()
+        for ul in to_unlink:
+            try:
+                ul.mapped('data_id').unlink()
+            except:
+                pass
         return to_unlink.write({'purged': True})
 
 

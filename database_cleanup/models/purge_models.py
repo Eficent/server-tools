@@ -70,9 +70,12 @@ class CleanupPurgeLineModel(models.TransientModel):
                     "UPDATE ir_attachment SET res_model = NULL "
                     "WHERE id in %s",
                     (tuple(attachments.ids), ))
-            self.env['ir.model.constraint'].search([
-                ('model', '=', line.name),
-            ]).unlink()
+            try:
+                self.env['ir.model.constraint'].search([
+                    ('model', '=', line.name),
+                ]).unlink()
+            except:
+                continue
             relations = self.env['ir.model.fields'].search([
                 ('relation', '=', row[1]),
             ]).with_context(**context_flags)
@@ -81,15 +84,16 @@ class CleanupPurgeLineModel(models.TransientModel):
                     # Fails if the model on the target side
                     # cannot be instantiated
                     relation.unlink()
-                except KeyError:
-                    pass
-                except AttributeError:
+                except:
                     pass
             self.env['ir.model.relation'].search([
                 ('model', '=', line.name)
             ]).with_context(**context_flags).unlink()
-            self.env['ir.model'].browse([row[0]])\
-                .with_context(**context_flags).unlink()
+            try:
+                self.env['ir.model'].browse([row[0]])\
+                    .with_context(**context_flags).unlink()
+            except:
+                pass
             line.write({'purged': True})
         return True
 
